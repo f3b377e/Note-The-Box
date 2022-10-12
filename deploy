@@ -1,0 +1,5 @@
+#! /usr/bin/bash
+
+cp /home/frebelle/Note-The-Box/main.js /home/frebelle/obsidian-hub-0.2.1/.obsidian/plugins/obsidian-note-the-box/
+cp /home/frebelle/Note-The-Box/styles.css /home/frebelle/obsidian-hub-0.2.1/.obsidian/plugins/obsidian-note-the-box/
+cp /home/frebelle/Note-The-Box/manifest.json /home/frebelle/obsidian-hub-0.2.1/.obsidian/plugins/obsidian-note-the-box/

@@ -1,13 +1,13 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { apiVersion, App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, requestUrl } from 'obsidian';
+import { htbApiGet } from 'api'
 
-// Remember to rename these classes and interfaces!
 
 interface MyPluginSettings {
-	mySetting: string;
+	authToken: string;
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
+	authToken: ''
 }
 
 export default class MyPlugin extends Plugin {
@@ -33,7 +33,7 @@ export default class MyPlugin extends Plugin {
 			id: 'open-sample-modal-simple',
 			name: 'Open sample modal (simple)',
 			callback: () => {
-				new SampleModal(this.app).open();
+				new SampleModal(this.app, this.settings).open();
 			}
 		});
 		// This adds an editor command that can perform some operation on the current editor instance
@@ -56,7 +56,7 @@ export default class MyPlugin extends Plugin {
 					// If checking is true, we're simply "checking" if the command can be run.
 					// If checking is false, then we want to actually perform the operation.
 					if (!checking) {
-						new SampleModal(this.app).open();
+						new SampleModal(this.app, this.settings).open();
 					}
 
 					// This command will only show up in Command Palette when the check function returns true
@@ -92,13 +92,17 @@ export default class MyPlugin extends Plugin {
 }
 
 class SampleModal extends Modal {
-	constructor(app: App) {
+	settings: any;
+	constructor(app: App, settings: any) {
 		super(app);
+		this.settings = settings;
 	}
 
 	onOpen() {
 		const {contentEl} = this;
-		contentEl.setText('Woah!');
+		contentEl.setText('Woah! si spacca tutto!');
+
+		htbApiGet("user/info",this.settings.authToken).then(r => console.log(r));
 	}
 
 	onClose() {
@@ -120,17 +124,17 @@ class SampleSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
+		containerEl.createEl('h2', {text: 'Settings for Note The Box plugin.'});
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
+			.setName('authToken')
+			.setDesc('generate from HackTheBox website')
 			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
+				.setPlaceholder('Enter your authToken of HackTheBox')
+				.setValue(this.plugin.settings.authToken)
 				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
+					console.log('authToken: ' + value);
+					this.plugin.settings.authToken = value;
 					await this.plugin.saveSettings();
 				}));
 	}
