@@ -1,5 +1,5 @@
 import { apiVersion, App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, requestUrl } from 'obsidian';
-import { htbApiGet } from 'api'
+import HTBApi from './api';
 
 
 interface MyPluginSettings {
@@ -10,11 +10,14 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 	authToken: ''
 }
 
-export default class MyPlugin extends Plugin {
+export default class NoteTheBoxPlugin extends Plugin {
 	settings: MyPluginSettings;
+	api: HTBApi;
 
 	async onload() {
 		await this.loadSettings();
+
+		this.api = new HTBApi(this.settings.authToken);
 
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
@@ -33,7 +36,7 @@ export default class MyPlugin extends Plugin {
 			id: 'open-sample-modal-simple',
 			name: 'Open sample modal (simple)',
 			callback: () => {
-				new SampleModal(this.app, this.settings).open();
+				new SampleModal(this.app, this.api).open();
 			}
 		});
 		// This adds an editor command that can perform some operation on the current editor instance
@@ -56,7 +59,7 @@ export default class MyPlugin extends Plugin {
 					// If checking is true, we're simply "checking" if the command can be run.
 					// If checking is false, then we want to actually perform the operation.
 					if (!checking) {
-						new SampleModal(this.app, this.settings).open();
+						new SampleModal(this.app, this.api).open();
 					}
 
 					// This command will only show up in Command Palette when the check function returns true
@@ -69,7 +72,7 @@ export default class MyPlugin extends Plugin {
 		this.addSettingTab(new SampleSettingTab(this.app, this));
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
+		// Using ths fnction will automatically remove the event listener when this plugin is disabled.
 		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
 			console.log('click', evt);
 		});
@@ -93,16 +96,23 @@ export default class MyPlugin extends Plugin {
 
 class SampleModal extends Modal {
 	settings: any;
-	constructor(app: App, settings: any) {
+	api: HTBApi;
+
+	// c'è un modo migliore ?
+	constructor(app: App, api: HTBApi) {
 		super(app);
-		this.settings = settings;
+		this.api = api;
 	}
 
 	onOpen() {
 		const {contentEl} = this;
-		contentEl.setText('Woah! si spacca tutto!');
 
-		htbApiGet("user/info",this.settings.authToken).then(r => console.log(r));
+		this.api.getCompleteMachineProfileById('30094').then(r => {
+			if (r)
+				r = JSON.parse(r);
+				contentEl.setText('hai fatto: '+r);
+		});
+
 	}
 
 	onClose() {
@@ -112,9 +122,9 @@ class SampleModal extends Modal {
 }
 
 class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+	plugin: NoteTheBoxPlugin;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: NoteTheBoxPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
@@ -128,7 +138,7 @@ class SampleSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('authToken')
-			.setDesc('generate from HackTheBox website')
+			.setDesc('generate from HackTheBox profile')
 			.addText(text => text
 				.setPlaceholder('Enter your authToken of HackTheBox')
 				.setValue(this.plugin.settings.authToken)

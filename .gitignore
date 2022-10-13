@@ -5,6 +5,9 @@
 *.iml
 .idea
 
+# custom tools
+./deploy
+
 # npm
 node_modules
 
