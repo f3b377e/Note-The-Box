@@ -1,10 +1,10 @@
 {
 	"id": "obsidian-note-the-box",
 	"name": "NoteTheBox",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"minAppVersion": "0.15.0",
 	"description": "Obsidian plugin synchronized with your HTB profile to speed up your notes",
-	"author": "Obsidian",
+	"author": "f3b377e",
 	"authorUrl": "https://github.com/f3b377e/Note-The-Box",
 	"isDesktopOnly": false
 }

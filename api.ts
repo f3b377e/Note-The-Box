@@ -17,7 +17,7 @@ export default class HTBApi{
             url: this.baseUrlApi+endpointPath, 
             headers: { Authorization: "Bearer " + this.apiToken , 'Accept': "application/json, */*" }
         };
-        
+
         return request(requestOptions)
             .then(response => response)
             .catch(error => console.log('error', error));
@@ -27,7 +27,25 @@ export default class HTBApi{
 	 * Machines
 	 */
 	public getCompleteMachineProfileById(idProfile : string) {
-		return this.get('profile/progress/machines/os/'+idProfile)
-	}
+        return this.get('profile/progress/machines/os/'+idProfile)
+    }
+
+    //TODO: fix doesnt work dunno
+    public getProfileId() : string {
+        let id = "";
+        this.get('user/info').then(r => {
+            if (r){
+                let json = JSON.parse(r);
+                id = json["info"]["id"];
+                return id.toString();
+            }
+        });
+        return id;
+    }
+
+    public getMachineByName(nameMachine : string) {
+        return this.get('machine/profile/'+nameMachine)
+    }
+
 
 }
